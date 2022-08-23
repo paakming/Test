@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wbm.springbootvue.mapper.MedicineMapper">
+  <resultMap id="BaseResultMap" type="com.wbm.springbootvue.pojo.Medicine">
+    <id column="mid" jdbcType="VARCHAR" property="mid" />
+    <result column="drugName" jdbcType="VARCHAR" property="drugname" />
+    <result column="quantity" jdbcType="CHAR" property="quantity" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="entertime" jdbcType="TIMESTAMP" property="entertime" />
+    <result column="drugPrice" jdbcType="REAL" property="drugprice" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    mid, drugName, quantity, type, entertime, drugPrice
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from medicine
+    where mid = #{mid,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from medicine
+    where  drugname = #{drugname,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from medicine
+    where mid = #{mid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.wbm.springbootvue.pojo.Medicine">
+    insert into medicine (mid, drugName, quantity, 
+      type, entertime, drugPrice
+      )
+    values (#{mid,jdbcType=VARCHAR}, #{drugname,jdbcType=VARCHAR}, #{quantity,jdbcType=CHAR}, 
+      #{type,jdbcType=VARCHAR}, #{entertime,jdbcType=TIMESTAMP}, #{drugprice,jdbcType=REAL}
+      )
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.wbm.springbootvue.pojo.Medicine">
+    update medicine
+    <set>
+      <if test="drugname != null">
+        drugName = #{drugname,jdbcType=VARCHAR},
+      </if>
+      <if test="quantity != null">
+        quantity = #{quantity,jdbcType=CHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="entertime != null">
+        entertime = #{entertime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="drugprice != null">
+        drugPrice = #{drugprice,jdbcType=REAL},
+      </if>
+    </set>
+    where mid = #{mid,jdbcType=VARCHAR}
+  </update>
+</mapper>

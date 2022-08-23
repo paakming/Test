@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wbm.springbootvue.mapper.UserMapper" >
+     <select id="checkLogin"   resultMap="UserResultMap">
+         select u.*,d.*,TIMESTAMPDIFF(YEAR,birthday,now()) as age from user u ,doctor d where u.jobid=#{jobid} and u.password = #{password} and u.jobid = d.jobid
+     </select>
+    <resultMap type="com.wbm.springbootvue.pojo.User" id="UserResultMap">
+        <id column="uid" property="uid"/>
+        <result column="jobid" property="jobid" />
+        <result column="password" property="password" />
+        <result column="phone" property="phone" />
+        <result column="email" property="email" />
+        <result column="isManager" property="isManager" />
+        <association property="doctor" javaType="com.wbm.springbootvue.pojo.Doctor">
+            <id column="jobid" property="jobid"/>
+            <result column="name" jdbcType="VARCHAR" property="name" />
+            <result column="phone" jdbcType="VARCHAR" property="phone" />
+            <result column="sex" jdbcType="CHAR" property="sex" />
+            <result column="birthday" jdbcType="DATE" property="birthday" />
+            <result column="age" jdbcType="INTEGER" property="age" />
+            <result column="department" jdbcType="VARCHAR" property="department" />
+            <result column="position" jdbcType="VARCHAR" property="position" />
+        </association>
+    </resultMap>
+    <select id="getById" resultType="com.wbm.springbootvue.pojo.User">
+        select * from user where isDelete = "0" and uid=#{uid}
+    </select>
+
+    <select id="All" resultType="com.wbm.springbootvue.pojo.User">
+        select uid,jobid,phone,email,isManager
+        from user
+        where
+        <if test="jobid!=null">
+            jobid = #{jobid} and
+        </if> isDelete = "0"
+    </select>
+    <insert id="addUser" parameterType="com.wbm.springbootvue.pojo.User" >
+        insert into user (jobid,phone,password,email,isManager,isDelete)
+         values (#{jobid},#{phone},#{password},#{email},#{isManager},"0")
+    </insert>
+    <insert id="register">
+        insert into user (phone,password,email,isManager,isDelete)
+        values (#{phone},#{password},#{email},"就诊人","0")
+    </insert>
+    <delete id="deleteUser" parameterType="integer">
+        update user set isDelete = "1" where uid = #{uid}
+    </delete>
+    <delete id="deleteByIds" parameterType="integer">
+        update user set isDelete = "1" where  uid in (
+            <foreach collection="list" item="uid" separator=",">
+                #{uid}
+            </foreach>
+            )
+    </delete>
+    <update id="updateUser">
+        update user
+        <set>
+            <if test="jobid != null">
+                jobid = #{jobid},
+            </if>
+            <if test="phone!=null">
+                phone = #{phone},
+            </if>
+            <if test="password!=null">
+                password = #{password},
+            </if>
+            <if test="email!=null">
+                email = #{email},
+            </if>
+            <if test="isManager!=null">
+                isManager = #{isManager}
+            </if>
+        </set>
+        where uid = #{uid}
+    </update>
+    <update id="changePassword">
+        update user set password=#{password} where uid = #{uid}
+    </update>
+    <cache/>
+</mapper>

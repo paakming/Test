@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wbm.springbootvue.mapper.PatientMapper">
+  <resultMap id="BaseResultMap" type="com.wbm.springbootvue.pojo.Patient">
+    <id column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="identityCard" jdbcType="VARCHAR" property="identityCard" />
+    <result column="pname" jdbcType="VARCHAR" property="pname" />
+    <result column="sex" jdbcType="CHAR" property="sex" />
+    <result column="birthday" jdbcType="TIMESTAMP" property="birthday" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="phone" jdbcType="VARCHAR" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, identityCard, pname, sex, birthday, phone,TIMESTAMPDIFF(YEAR,birthday,now()) as age,isDeleted
+  </sql>
+  <select id="allPatient" resultType="com.wbm.springbootvue.pojo.Patient">
+    select
+    <include refid="Base_Column_List" />
+    from patient where isDeleted="0"
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from patient
+    where pid = #{pid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    update patient set isDeleted="1"
+    where pid = #{pid,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteBypids">
+    update patient set isDeleted = "1" where  pid in (
+    <foreach collection="list" item="pid" separator=",">
+      #{pid}
+    </foreach>
+    )
+  </delete>
+  <insert id="insert" parameterType="com.wbm.springbootvue.pojo.Patient">
+    insert into patient (pid, identityCard, pname, 
+      sex, birthday, phone,isDeleted
+      )
+    values (#{pid,jdbcType=INTEGER}, #{identityCard,jdbcType=VARCHAR}, #{pname,jdbcType=VARCHAR},
+      #{sex,jdbcType=CHAR}, #{birthday,jdbcType=TIMESTAMP}, #{phone,jdbcType=VARCHAR},#{isDeleted}
+      )
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wbm.springbootvue.pojo.Patient">
+    update patient
+    <set>
+      <if test="identityCard != null">
+        identityCard = #{identityCard,jdbcType=VARCHAR},
+      </if>
+      <if test="pname != null">
+        pname = #{pname,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=CHAR},
+      </if>
+      <if test="birthday != null">
+        birthday = #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null">
+        isDeleted = #{isDeleted,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=INTEGER}
+  </update>
+</mapper>

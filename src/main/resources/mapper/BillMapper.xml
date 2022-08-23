@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wbm.springbootvue.mapper.BillMapper">
+  <resultMap id="BaseResultMap" type="com.wbm.springbootvue.pojo.Bill">
+    <id column="bid" jdbcType="INTEGER" property="bid" />
+    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="rid" jdbcType="SMALLINT" property="rid" />
+    <result column="jobid" jdbcType="VARCHAR" property="jobid" />
+    <result column="cfid" jdbcType="INTEGER" property="cfid" />
+    <result column="finishedTime" jdbcType="TIMESTAMP" property="finishedtime" />
+    <result column="isCompleted" jdbcType="VARCHAR" property="iscompleted" />
+    <result column="isDeleted" jdbcType="VARCHAR" property="isdeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    bid, pid, rid, jobid, cfid, finishedTime, isCompleted, isDeleted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from bill
+    where bid = #{bid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from bill
+    where bid = #{bid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wbm.springbootvue.pojo.Bill">
+    insert into bill (bid, pid, rid, 
+      jobid, cfid, finishedTime, 
+      isCompleted, isDeleted)
+    values (#{bid,jdbcType=INTEGER}, #{pid,jdbcType=INTEGER}, #{rid,jdbcType=SMALLINT}, 
+      #{jobid,jdbcType=VARCHAR}, #{cfid,jdbcType=INTEGER}, #{finishedtime,jdbcType=TIMESTAMP}, 
+      #{iscompleted,jdbcType=VARCHAR}, #{isdeleted,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wbm.springbootvue.pojo.Bill">
+    insert into bill
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="bid != null">
+        bid,
+      </if>
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="rid != null">
+        rid,
+      </if>
+      <if test="jobid != null">
+        jobid,
+      </if>
+      <if test="cfid != null">
+        cfid,
+      </if>
+      <if test="finishedtime != null">
+        finishedTime,
+      </if>
+      <if test="iscompleted != null">
+        isCompleted,
+      </if>
+      <if test="isdeleted != null">
+        isDeleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="bid != null">
+        #{bid,jdbcType=INTEGER},
+      </if>
+      <if test="pid != null">
+        #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="rid != null">
+        #{rid,jdbcType=SMALLINT},
+      </if>
+      <if test="jobid != null">
+        #{jobid,jdbcType=VARCHAR},
+      </if>
+      <if test="cfid != null">
+        #{cfid,jdbcType=INTEGER},
+      </if>
+      <if test="finishedtime != null">
+        #{finishedtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="iscompleted != null">
+        #{iscompleted,jdbcType=VARCHAR},
+      </if>
+      <if test="isdeleted != null">
+        #{isdeleted,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wbm.springbootvue.pojo.Bill">
+    update bill
+    <set>
+      <if test="pid != null">
+        pid = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="rid != null">
+        rid = #{rid,jdbcType=SMALLINT},
+      </if>
+      <if test="jobid != null">
+        jobid = #{jobid,jdbcType=VARCHAR},
+      </if>
+      <if test="cfid != null">
+        cfid = #{cfid,jdbcType=INTEGER},
+      </if>
+      <if test="finishedtime != null">
+        finishedTime = #{finishedtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="iscompleted != null">
+        isCompleted = #{iscompleted,jdbcType=VARCHAR},
+      </if>
+      <if test="isdeleted != null">
+        isDeleted = #{isdeleted,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where bid = #{bid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wbm.springbootvue.pojo.Bill">
+    update bill
+    set pid = #{pid,jdbcType=INTEGER},
+      rid = #{rid,jdbcType=SMALLINT},
+      jobid = #{jobid,jdbcType=VARCHAR},
+      cfid = #{cfid,jdbcType=INTEGER},
+      finishedTime = #{finishedtime,jdbcType=TIMESTAMP},
+      isCompleted = #{iscompleted,jdbcType=VARCHAR},
+      isDeleted = #{isdeleted,jdbcType=VARCHAR}
+    where bid = #{bid,jdbcType=INTEGER}
+  </update>
+</mapper>

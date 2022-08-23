@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wbm.springbootvue.mapper.DetailMapper">
+  <resultMap id="BaseResultMap" type="com.wbm.springbootvue.pojo.Detail">
+    <id column="did" jdbcType="INTEGER" property="did" />
+    <result column="cfid" jdbcType="INTEGER" property="cfid" />
+    <result column="mid" jdbcType="VARCHAR" property="mid" />
+    <result column="quantity" jdbcType="CHAR" property="quantity" />
+    <result column="usage" jdbcType="VARCHAR" property="usage" />
+    <result column="isDeleted" jdbcType="VARCHAR" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    did, cfid, mid, quantity, usage, isDeleted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from detail
+    where did = #{did,jdbcType=INTEGER}
+  </select>
+  <select id="selectBycfid" parameterType="java.lang.Integer" resultMap="detailResultMap">
+    select d.did, d.cfid, d.mid,m.drugname, d.quantity, d.usage, d.isDeleted,m.drugprice
+    from detail d,prescription p,medicine m
+    where d.cfid = #{cfid} and p.cfid = d.cfid AND d.mid =m.mid and d.isDeleted="0"
+  </select>
+  <resultMap type="com.wbm.springbootvue.pojo.Detail" id="detailResultMap">
+    <id column="did" jdbcType="INTEGER" property="did" />
+    <result column="cfid" jdbcType="INTEGER" property="cfid" />
+    <result column="mid" jdbcType="VARCHAR" property="mid" />
+    <result column="quantity" jdbcType="CHAR" property="quantity" />
+    <result column="usage" jdbcType="VARCHAR" property="usage" />
+    <result column="isDeleted" jdbcType="VARCHAR" property="isDeleted" />
+    <association property="medicine" javaType="com.wbm.springbootvue.pojo.Medicine">
+      <id column="mid" property="mid"/>
+      <result column="drugname" property="drugname" />
+      <result column="drugPrice" property="drugprice" />
+    </association>
+  </resultMap>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    update detail set isDeleted="1"
+    where did = #{did,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wbm.springbootvue.pojo.Detail">
+    insert into detail ( cfid, mid,
+      quantity, `usage`, isDeleted
+      )
+    values (#{cfid,jdbcType=INTEGER}, #{mid,jdbcType=VARCHAR},
+      #{quantity,jdbcType=CHAR}, #{usage,jdbcType=VARCHAR}, #{isDeleted,jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.wbm.springbootvue.pojo.Detail">
+    update detail
+    <set>
+      <if test="cfid != null">
+        cfid = #{cfid,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null">
+        mid = #{mid,jdbcType=VARCHAR},
+      </if>
+      <if test="quantity != null">
+        quantity = #{quantity,jdbcType=CHAR},
+      </if>
+      <if test="usage != null">
+        `usage` = #{usage,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where did = #{did,jdbcType=INTEGER}
+  </update>
+
+</mapper>

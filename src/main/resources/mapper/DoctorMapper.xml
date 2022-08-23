@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wbm.springbootvue.mapper.DoctorMapper">
+  <resultMap id="BaseResultMap" type="com.wbm.springbootvue.pojo.Doctor">
+    <id column="jobid" jdbcType="VARCHAR" property="jobid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="sex" jdbcType="CHAR" property="sex" />
+    <result column="identityCard" jdbcType="VARCHAR" property="identityCard" />
+    <result column="birthday" jdbcType="DATE" property="birthday" />
+    <result column="department" jdbcType="VARCHAR" property="department" />
+    <result column="position" jdbcType="VARCHAR" property="position" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    jobid, name, sex, department, position, phone,birthday,identityCard,TIMESTAMPDIFF(YEAR,birthday,now()) as age
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from doctor
+    where jobid = #{jobid,jdbcType=VARCHAR}
+  </select>
+  <select id="allDoctor" resultType="com.wbm.springbootvue.pojo.Doctor">
+    select *,TIMESTAMPDIFF(YEAR,birthday,now()) as age from doctor
+    WHERE
+    <if test="jobid!=null">
+    jobid = #{jobid} and
+  </if> isDeleted="0"
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    update doctor set isDeleted="1"
+    where jobid = #{jobid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByJobids" parameterType="String">
+    update doctor set isDeleted = "1" where  jobid in (
+    <foreach collection="list" item="jobid" separator=",">
+      #{jobid}
+    </foreach>
+    )
+  </delete>
+  <insert id="insert" parameterType="com.wbm.springbootvue.pojo.Doctor">
+    insert into doctor (jobid, name, sex, birthday,isDeleted,identityCard,
+      department, position, phone
+      )
+    values (#{jobid,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{sex,jdbcType=CHAR}, #{birthday},#{isDeleted},#{identityCard}
+      #{department,jdbcType=VARCHAR}, #{position,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wbm.springbootvue.pojo.Doctor">
+    insert into doctor
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="jobid != null">
+        jobid,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="birthday != null">
+        birthday,
+      </if>
+      <if test="department != null">
+        department,
+      </if>
+      <if test="position != null">
+        position,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="identityCard != null">
+        identityCard,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="jobid != null">
+        #{jobid,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=CHAR},
+      </if>
+      <if test="birthday != null">
+        #{birthday},
+      </if>
+      <if test="department != null">
+        #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="position != null">
+        #{position,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="identityCard != null">
+        #{identityCard},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wbm.springbootvue.pojo.Doctor">
+    update doctor
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=CHAR},
+      </if>
+      <if test="birthday != null">
+        birthday = #{birthday},
+      </if>
+      <if test="department != null">
+        department = #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="position != null">
+        position = #{position,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="identityCard != null">
+        identityCard = #{identityCard},
+      </if>
+    </set>
+    where jobid = #{jobid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wbm.springbootvue.pojo.Doctor">
+    update doctor
+    set name = #{name,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=CHAR},
+      department = #{department,jdbcType=VARCHAR},
+      position = #{position,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      birthday = #{birthday},
+        identityCard = #{identityCard}
+    where jobid = #{jobid,jdbcType=VARCHAR}
+  </update>
+</mapper>

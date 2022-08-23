@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wbm.springbootvue.mapper.PrescriptionMapper">
+  <resultMap id="BaseResultMap" type="com.wbm.springbootvue.pojo.Prescription">
+    <id column="cfid" jdbcType="INTEGER" property="cfid" />
+    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="jobid" jdbcType="VARCHAR" property="jobid" />
+    <result column="message" jdbcType="VARCHAR" property="message" />
+    <result column="opentime" jdbcType="TIMESTAMP" property="opentime" />
+    <result column="isDeleted" jdbcType="VARCHAR" property="isDeleted" />
+    <result column="isCompleted" jdbcType="VARCHAR" property="isCompleted" />
+    <result column="totalPrice" jdbcType="REAL" property="totalPrice" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    cfid, pid, jobid, message, opentime, isDeleted, isCompleted, totalPrice
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from prescription
+    where cfid = #{cfid,jdbcType=INTEGER}
+  </select>
+  <select id="allPrescription" resultMap="PrescriptionResultMap">
+    select cfid,b.pname,c.name ,a.pid, a.jobid, message, opentime, isCompleted, totalPrice
+    from prescription a,patient b,doctor c
+    WHERE a.isDeleted="0" and a.pid=b.pid and a.jobid=c.jobid
+  </select>
+  <resultMap type="com.wbm.springbootvue.pojo.Prescription" id="PrescriptionResultMap">
+    <id column="cfid" jdbcType="INTEGER" property="cfid" />
+    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="jobid" jdbcType="VARCHAR" property="jobid" />
+    <result column="message" jdbcType="VARCHAR" property="message" />
+    <result column="opentime" jdbcType="TIMESTAMP" property="opentime" />
+    <result column="isDeleted" jdbcType="VARCHAR" property="isDeleted" />
+    <result column="isCompleted" jdbcType="VARCHAR" property="isCompleted" />
+    <result column="totalPrice" jdbcType="REAL" property="totalPrice" />
+    <association property="patient" javaType="com.wbm.springbootvue.pojo.Patient">
+      <id column="pid" property="pid"/>
+      <result column="pname" property="pname" />
+    </association>
+    <association property="doctor" javaType="com.wbm.springbootvue.pojo.Doctor">
+      <id column="jobid" property="jobid" />
+      <result column="name" property="name" />
+    </association>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    update prescription set isDeleted = "1"
+    where  cfid = #{cfid}
+  </delete>
+  <delete id="deleteBycfids" parameterType="Integer">
+    update prescription set isDeleted = "1" where  cfid in (
+    <foreach collection="list" item="cfid" separator=",">
+      #{cfid}
+    </foreach>
+    )
+  </delete>
+  <insert id="insert" parameterType="com.wbm.springbootvue.pojo.Prescription" useGeneratedKeys="true" keyProperty="cfid">
+<!--    <selectKey keyProperty="cfid" order="AFTER" resultType="com.wbm.springbootvue.pojo.Prescription">
+      select LAST_INSERT_ID()
+    </selectKey>-->
+    insert into prescription (pid, jobid,
+      message, opentime, isDeleted, 
+      isCompleted, totalPrice)
+    values (#{pid,jdbcType=INTEGER}, #{jobid,jdbcType=VARCHAR},
+      #{message,jdbcType=VARCHAR}, #{opentime,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=VARCHAR},
+      #{isCompleted,jdbcType=VARCHAR}, #{totalPrice,jdbcType=REAL})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wbm.springbootvue.pojo.Prescription">
+    update prescription
+    <set>
+      <if test="pid != null">
+        pid = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="jobid != null">
+        jobid = #{jobid,jdbcType=VARCHAR},
+      </if>
+      <if test="message != null">
+        message = #{message,jdbcType=VARCHAR},
+      </if>
+      <if test="opentime != null">
+        opentime = #{opentime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        isDeleted = #{isDeleted,jdbcType=VARCHAR},
+      </if>
+      <if test="isCompleted != null">
+        isCompleted = #{isCompleted,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPrice != null">
+        totalPrice = #{totalPrice,jdbcType=REAL},
+      </if>
+    </set>
+    where cfid = #{cfid,jdbcType=INTEGER}
+  </update>
+</mapper>

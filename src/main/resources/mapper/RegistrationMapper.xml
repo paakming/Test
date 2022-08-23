@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wbm.springbootvue.mapper.RegistrationMapper">
+  <resultMap id="BaseResultMap" type="com.wbm.springbootvue.pojo.Registration">
+    <id column="rid" jdbcType="INTEGER" property="rid" />
+    <result column="Pid" jdbcType="INTEGER" property="pid" />
+    <result column="jobid" jdbcType="VARCHAR" property="jobid" />
+    <result column="price" jdbcType="REAL" property="price" />
+    <result column="visitTime" jdbcType="TIMESTAMP" property="visitTime" />
+    <result column="isCompleted" jdbcType="VARCHAR" property="isCompleted" />
+    <result column="cfid" jdbcType="INTEGER" property="cfid" />
+    <result column="isDeleted" jdbcType="VARCHAR" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    rid, Pid, jobid, price, visitTime, isCompleted, cfid, isDeleted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Short" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from registration
+    where rid = #{rid,jdbcType=SMALLINT}
+  </select>
+  <select id="selectByjobid" resultMap="RegistrationResultMap">
+    select rid, r.pid, jobid, price, visitTime, isCompleted, cfid, r.isDeleted,identityCard,pname,sex,birthday,phone,TIMESTAMPDIFF(YEAR,birthday,now()) as age
+    from registration r,patient p
+    where
+    <if test="jobid != null">
+      jobid = #{jobid} and
+    </if>
+  r.pid = p.pid and isCompleted="0"
+  </select>
+  <resultMap type="com.wbm.springbootvue.pojo.Registration" id="RegistrationResultMap">
+    <id column="rid" jdbcType="INTEGER" property="rid" />
+    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="jobid" jdbcType="VARCHAR" property="jobid" />
+    <result column="price" jdbcType="REAL" property="price" />
+    <result column="visitTime" jdbcType="TIMESTAMP" property="visitTime" />
+    <result column="isCompleted" jdbcType="VARCHAR" property="isCompleted" />
+    <result column="cfid" jdbcType="INTEGER" property="cfid" />
+    <result column="isDeleted" jdbcType="VARCHAR" property="isDeleted" />
+    <association property="patient" javaType="com.wbm.springbootvue.pojo.Patient">
+      <id column="Pid" property="pid"/>
+      <result column="identityCard" jdbcType="VARCHAR" property="identityCard" />
+      <result column="pname" jdbcType="VARCHAR" property="pname" />
+      <result column="sex" jdbcType="CHAR" property="sex" />
+      <result column="age" jdbcType="INTEGER" property="age" />
+      <result column="birthday" jdbcType="TIMESTAMP" property="birthday" />
+      <result column="phone" jdbcType="VARCHAR" property="phone" />
+    </association>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Short">
+    delete from registration
+    where rid = #{rid,jdbcType=SMALLINT}
+  </delete>
+  <insert id="insert" parameterType="com.wbm.springbootvue.pojo.Registration">
+    insert into registration (rid, Pid, jobid, 
+      price, visitTime, isCompleted, 
+      cfid, isDeleted)
+    values (#{rid,jdbcType=INTEGER}, #{pid,jdbcType=INTEGER}, #{jobid,jdbcType=VARCHAR},
+      #{price,jdbcType=REAL}, #{visittime,jdbcType=TIMESTAMP}, #{iscompleted,jdbcType=VARCHAR}, 
+      #{cfid,jdbcType=INTEGER}, #{isdeleted,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wbm.springbootvue.pojo.Registration">
+    update registration
+    <set>
+      <if test="pid != null">
+        Pid = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="jobid != null">
+        jobid = #{jobid,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null">
+        price = #{price,jdbcType=REAL},
+      </if>
+      <if test="visitTime != null">
+        visitTime = #{visitTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isCompleted != null">
+        isCompleted = #{isCompleted,jdbcType=VARCHAR},
+      </if>
+      <if test="cfid != null">
+        cfid = #{cfid,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null">
+        isDeleted = #{isDeleted},
+      </if>
+    </set>
+    where rid = #{rid,jdbcType=INTEGER}
+  </update>
+</mapper>
