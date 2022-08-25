@@ -2,6 +2,8 @@ package com.wbm.springbootvue.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.wbm.springbootvue.common.Result;
+import com.wbm.springbootvue.common.ResultCode;
+import com.wbm.springbootvue.exception.ServiceException;
 import com.wbm.springbootvue.pojo.Patient;
 import com.wbm.springbootvue.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin
 @RequestMapping(value = "/patient")
 public class PatientController {
     @Autowired
@@ -23,19 +24,50 @@ public class PatientController {
     }
     @PostMapping
     public Result add(@RequestBody Patient patient) {
-        int r = patientService.insert(patient);
-        if (1 == r) {
-            return Result.success();
+        String name = patient.getPname();
+       // String birthday = patient.getBirthday().toString();
+        String phone = patient.getPhone();
+        String sex = patient.getSex();
+        String id = patient.getIdentityCard();
+        boolean flag = true;
+        if (name == null||name.isEmpty()){
+            flag = false;
         }
-        return Result.error("添加失败");
+        /*if (birthday == null||birthday.isEmpty()){
+            flag = false;
+        }*/
+        if (phone == null||phone.isEmpty()){
+            flag = false;
+        }
+        if (sex == null||sex.isEmpty()){
+            flag = false;
+        }
+        if (id == null||id.isEmpty()){
+            flag = false;
+        }
+        if (flag){
+            int r = patientService.insert(patient);
+            if (1 == r) {
+                return Result.success();
+            }
+        }
+        else {
+            throw new ServiceException(ResultCode.CODE_500,"必填项不能为空");
+        }
+        return Result.error();
     }
     @PutMapping
     public Result edit(@RequestBody Patient patient){
-        int r = patientService.updateByPrimaryKey(patient);
-        if (r==1){
-            return Result.success();
+        System.out.println(patient);
+        if (patient.getPname().isEmpty()||patient.getIdentityCard().isEmpty()||patient.getPhone().isEmpty()||patient.getSex().isEmpty()){
+            throw new ServiceException(ResultCode.CODE_500,"必填项不能为空");
+        }else {
+            int r = patientService.updateByPrimaryKey(patient);
+            if (r==1){
+                return Result.success();
+            }
         }
-        return Result.error("error");
+        return Result.error();
     }
     @DeleteMapping(value = "/{pid}")
     public Result delete(@PathVariable("pid") Integer pid){

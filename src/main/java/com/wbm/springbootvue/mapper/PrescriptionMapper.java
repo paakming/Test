@@ -11,7 +11,7 @@ public interface PrescriptionMapper {
 
     int insert(Prescription record);
 
-    Prescription selectByPrimaryKey(Integer cfid);
+    List<Prescription> selectByPrimaryKey(Integer cfid);
 
     int updateByPrimaryKeySelective(Prescription record);
 

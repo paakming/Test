@@ -3,18 +3,13 @@ package com.wbm.springbootvue.service.impl;
 import cn.hutool.core.date.DateUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.wbm.springbootvue.mapper.DetailMapper;
-import com.wbm.springbootvue.mapper.MedicineMapper;
-import com.wbm.springbootvue.mapper.PrescriptionMapper;
-import com.wbm.springbootvue.mapper.RegistrationMapper;
-import com.wbm.springbootvue.pojo.Detail;
-import com.wbm.springbootvue.pojo.Medicine;
-import com.wbm.springbootvue.pojo.Prescription;
-import com.wbm.springbootvue.pojo.Registration;
+import com.wbm.springbootvue.common.ResultCode;
+import com.wbm.springbootvue.exception.ServiceException;
+import com.wbm.springbootvue.mapper.*;
+import com.wbm.springbootvue.pojo.*;
 import com.wbm.springbootvue.service.PrescriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -28,6 +23,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     MedicineMapper medicineMapper;
     @Autowired
     RegistrationMapper registrationMapper;
+    @Autowired
+    DoctorMapper doctorMapper;
+    @Autowired
+    PatientMapper patientMapper;
 
     @Override
     public PageInfo<Prescription> allPrescription(Integer pageNum, Integer pageSize) {
@@ -38,18 +37,69 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
+    public List<Prescription> allPrescription() {
+        return prescriptionMapper.allPrescription();
+    }
+
+    @Override
     public Integer deleteByPrimaryKey(Integer cfid) {
         return prescriptionMapper.deleteByPrimaryKey(cfid);
     }
 
     @Override
-    public Integer insert(Prescription prescription) {
+    public Integer insert(String pname,String name, String message,String drugname,String usage,String quantity) {
+        Patient patient;
+        try {
+            patient  = patientMapper.selectByPrimaryName(pname);
+        }catch (Exception e){
+            throw new ServiceException(ResultCode.CODE_401,"系统错误");
+        }
+        if (patient == null){
+            throw new ServiceException(ResultCode.CODE_500,"患者姓名错误");
+        }
+        Doctor doctor;
+        try {
+            doctor = doctorMapper.selectByName(name);
+        }catch (Exception e){
+            throw new ServiceException(ResultCode.CODE_401,"系统错误");
+        }
+        if (doctor == null){
+            throw new ServiceException(ResultCode.CODE_500,"医师姓名错误");
+        }
+        Medicine medicine;
+        try {
+            medicine = medicineMapper.selectByName(drugname);
+        }catch (Exception e){
+            throw new ServiceException(ResultCode.CODE_401,"系统错误");
+        }
+        if (medicine == null){
+            throw new ServiceException(ResultCode.CODE_500,"药品不存在");
+        }
+        Prescription prescription = new Prescription();
+        prescription.setJobid(doctor.getJobid());
+        prescription.setPid(patient.getPid());
+        prescription.setMessage(message);
+        prescription.setOpentime(DateUtil.date(System.currentTimeMillis()));
+        prescription.setTotalPrice(medicine.getDrugprice());
         prescription.setIsDeleted("0");
-        return prescriptionMapper.insert(prescription);
+        prescription.setIsCompleted("0");
+        int res = prescriptionMapper.insert(prescription);
+        int cfid = prescription.getCfid();
+        if (1==res){
+            Detail detail = new Detail();
+            detail.setCfid(cfid);
+            detail.setQuantity(quantity);
+            detail.setMid(medicine.getMid());
+            detail.setUsage(usage);
+            detail.setIsDeleted("0");
+            int r = detailMapper.insert(detail);
+            return r;
+        }
+        return 0;
     }
 
     @Override
-    public Prescription selectByPrimaryKey(Integer cfid) {
+    public List<Prescription> selectByPrimaryKey(Integer cfid) {
         return prescriptionMapper.selectByPrimaryKey(cfid);
     }
 
@@ -65,7 +115,15 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     public Integer newPrescription(Integer pid, String jobid, String message, String drugname, String usage, String quantity,Integer rid) {
-        Medicine medicine = medicineMapper.selectByName(drugname);
+        Medicine medicine;
+        try {
+           medicine = medicineMapper.selectByName(drugname);
+        }catch (Exception e){
+            throw new ServiceException(ResultCode.CODE_401,"系统错误");
+        }
+        if (medicine == null){
+            throw new ServiceException(ResultCode.CODE_500,"药品不存在");
+        }
         Prescription prescription = new Prescription();
         prescription.setOpentime(DateUtil.date(System.currentTimeMillis()));
         prescription.setJobid(jobid);

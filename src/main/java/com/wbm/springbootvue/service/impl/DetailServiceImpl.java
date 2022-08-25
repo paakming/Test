@@ -1,5 +1,7 @@
 package com.wbm.springbootvue.service.impl;
 
+import com.wbm.springbootvue.common.ResultCode;
+import com.wbm.springbootvue.exception.ServiceException;
 import com.wbm.springbootvue.mapper.DetailMapper;
 import com.wbm.springbootvue.mapper.MedicineMapper;
 import com.wbm.springbootvue.pojo.Detail;
@@ -26,8 +28,13 @@ public class DetailServiceImpl implements DetailService {
 
     @Override
     public int insert(Detail record) {
-        Medicine medicine = medicineMapper.selectByName(record.getMedicine().getDrugname());
-        record.setMid(medicine.getMid());
+        Medicine medicine ;
+        try {
+            medicine = medicineMapper.selectByName(record.getMedicine().getDrugname());
+            record.setMid(medicine.getMid());
+        }catch (Exception e){
+            throw new ServiceException(ResultCode.CODE_500,"添加错误，药品不存在");
+        }
         record.setIsDeleted("0");
         return detailMapper.insert(record);
     }
@@ -39,6 +46,12 @@ public class DetailServiceImpl implements DetailService {
 
     @Override
     public int updateByPrimaryKeySelective(Detail record) {
+        String drug =  record.getMedicine().getDrugname();
+        Medicine medicine = medicineMapper.selectByName(drug);
+        if (medicine == null){
+            throw new ServiceException(ResultCode.CODE_500,"药品不存在");
+        }
+        record.setMid(medicine.getMid());
         return detailMapper.updateByPrimaryKeySelective(record);
     }
 

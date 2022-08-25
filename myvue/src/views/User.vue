@@ -1,10 +1,9 @@
 <template>
   <el-main>
-    <div style="padding: 10px 0">
-      <el-input v-model="searchjobid" suffix-icon="el-icon-search"  placeholder="输入职工号查询" style="width: 200px"></el-input>
+<!--    <div style="padding: 10px 0">
       <el-button type="primary" icon="el-icon-search" style="margin-left: 5px" @click="search">搜索</el-button>
       <el-button type="primary"  style="margin-left: 5px" @click="load">显示所有</el-button>
-    </div>
+    </div>-->
     <div>
       <el-button type="primary" icon="el-icon-circle-plus-outline" style="margin-left: 5px" @click="dialogFormVisibleAdd = true">添加</el-button>
       <el-button type="danger" icon="el-icon-remove-outline"  :disabled="multipleSelection.length<=0" style="margin-left: 5px" @click="DeleteIds">批量删除</el-button>
@@ -52,7 +51,7 @@
       <el-dialog title="编辑" :visible.sync="dialogFormVisible" width="500px" :close-on-click-modal="false" :before-close="cancel">
         <el-form :model="form">
           <el-form-item label="uid" :label-width="formLabelWidth">
-            <el-input v-model="form.uid" autocomplete="off"></el-input>
+            <el-input v-model="form.uid" :disabled="true" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="职工号" :label-width="formLabelWidth">
             <el-input v-model="form.jobid" autocomplete="off"></el-input>
@@ -82,7 +81,7 @@
       <el-dialog title="添加" :visible.sync="dialogFormVisibleAdd"  width="500px" :close-on-click-modal="false" :before-close="clearDialog">
         <el-form :model="formAdd" ref='formAdd'>
           <el-form-item label="职工号" :label-width="formLabelWidth">
-            <el-input v-model="formAdd.jobid" autocomplete="off" ></el-input>
+            <el-input v-model="formAdd.jobid"  autocomplete="off" ></el-input>
           </el-form-item>
           <el-form-item label="手机号" :label-width="formLabelWidth">
             <el-input v-model="formAdd.phone" autocomplete="off" ></el-input>
@@ -123,7 +122,7 @@ export default {
       formAdd:{},
       formLabelWidth: '60px',
       multipleSelection: [],
-      searchjobid:''
+/*      searchjobid:''*/
     }
   },
   methods: {
@@ -133,7 +132,6 @@ export default {
           pageNum: this.pageNum,
           pageSize:this.pageSize
         }}).then((res)=>{
-          console.log(res)
         this.tableData = res.list
         this.total = res.total
         this.loading = false;
@@ -148,7 +146,7 @@ export default {
       this.pageNum = pageNum
       this.load()
     },
-    //搜索
+/*    //搜索
     search(){
       if (this.searchjobid !=''){
         this.request.get("/user",{params:{
@@ -161,7 +159,7 @@ export default {
           this.loading = false;
         })
       }
-    },
+    },*/
     //删除
     handleDelete(index, row) {
       this.$confirm('确认删除？',{
@@ -209,7 +207,6 @@ export default {
     //添加
     insert(){
       this.dialogFormVisible = false
-      console.log(this.formAdd)
       let formData = this.formAdd
       if (formData !=null){
         this.request.post('/user',formData).then((res)=>{
@@ -220,6 +217,11 @@ export default {
             })
             this.load()
             this.clearDialog()
+          }else {
+            this.$message({
+              message:res.msg,
+              type:"error"
+            })
           }
         }).catch((res)=>{
           console.log(res)
@@ -242,6 +244,11 @@ export default {
           this.$message({
             message:'编辑成功',
             type:"success"
+          })
+        }else {
+          this.$message({
+            message:res.msg,
+            type:"error"
           })
         }
       })

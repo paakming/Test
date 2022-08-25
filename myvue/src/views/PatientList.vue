@@ -70,7 +70,6 @@ export default {
       this.load()
     },
     work(index,row){
-      console.log(row)
       let info = row
       this.$router.push({
         name:'patientmain',

@@ -27,7 +27,13 @@
     jobid = #{jobid} and
   </if> isDeleted="0"
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    <select id="selectByName" resultType="com.wbm.springbootvue.pojo.Doctor">
+      select
+      <include refid="Base_Column_List" />
+      from doctor
+      where name = #{name,jdbcType=VARCHAR}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     update doctor set isDeleted="1"
     where jobid = #{jobid,jdbcType=VARCHAR}
   </delete>
@@ -39,67 +45,12 @@
     )
   </delete>
   <insert id="insert" parameterType="com.wbm.springbootvue.pojo.Doctor">
-    insert into doctor (jobid, name, sex, birthday,isDeleted,identityCard,
+    insert into doctor ( name, sex, birthday,isDeleted,identityCard,
       department, position, phone
       )
-    values (#{jobid,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{sex,jdbcType=CHAR}, #{birthday},#{isDeleted},#{identityCard}
+    values ( #{name,jdbcType=VARCHAR}, #{sex,jdbcType=CHAR}, #{birthday},#{isDeleted},#{identityCard}
       #{department,jdbcType=VARCHAR}, #{position,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}
       )
-  </insert>
-  <insert id="insertSelective" parameterType="com.wbm.springbootvue.pojo.Doctor">
-    insert into doctor
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="jobid != null">
-        jobid,
-      </if>
-      <if test="name != null">
-        name,
-      </if>
-      <if test="sex != null">
-        sex,
-      </if>
-      <if test="birthday != null">
-        birthday,
-      </if>
-      <if test="department != null">
-        department,
-      </if>
-      <if test="position != null">
-        position,
-      </if>
-      <if test="phone != null">
-        phone,
-      </if>
-      <if test="identityCard != null">
-        identityCard,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="jobid != null">
-        #{jobid,jdbcType=VARCHAR},
-      </if>
-      <if test="name != null">
-        #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="sex != null">
-        #{sex,jdbcType=CHAR},
-      </if>
-      <if test="birthday != null">
-        #{birthday},
-      </if>
-      <if test="department != null">
-        #{department,jdbcType=VARCHAR},
-      </if>
-      <if test="position != null">
-        #{position,jdbcType=VARCHAR},
-      </if>
-      <if test="phone != null">
-        #{phone,jdbcType=VARCHAR},
-      </if>
-      <if test="identityCard != null">
-        #{identityCard},
-      </if>
-    </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.wbm.springbootvue.pojo.Doctor">
     update doctor
@@ -126,17 +77,6 @@
         identityCard = #{identityCard},
       </if>
     </set>
-    where jobid = #{jobid,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.wbm.springbootvue.pojo.Doctor">
-    update doctor
-    set name = #{name,jdbcType=VARCHAR},
-      sex = #{sex,jdbcType=CHAR},
-      department = #{department,jdbcType=VARCHAR},
-      position = #{position,jdbcType=VARCHAR},
-      phone = #{phone,jdbcType=VARCHAR},
-      birthday = #{birthday},
-        identityCard = #{identityCard}
     where jobid = #{jobid,jdbcType=VARCHAR}
   </update>
 </mapper>

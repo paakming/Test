@@ -15,6 +15,7 @@ public interface UserService  {
     User logincheck(User user);
     Integer register(User user);
     PageInfo<User> All(Integer pageNum, Integer pageSize,String jobid);
+    List<User> list();
     Integer addUser(User user);
     Integer deleteUser(Integer uid);
     Integer updateUser(User user);

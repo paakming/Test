@@ -14,11 +14,10 @@
   <sql id="Base_Column_List">
     cfid, pid, jobid, message, opentime, isDeleted, isCompleted, totalPrice
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from prescription
-    where cfid = #{cfid,jdbcType=INTEGER}
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="PrescriptionResultMap">
+    select cfid,b.pname,c.name ,a.pid, a.jobid, message, opentime, isCompleted, totalPrice
+    from prescription a,patient b,doctor c
+    WHERE a.isDeleted="0" and a.pid=b.pid and a.jobid=c.jobid and cfid = #{cfid,jdbcType=INTEGER}
   </select>
   <select id="allPrescription" resultMap="PrescriptionResultMap">
     select cfid,b.pname,c.name ,a.pid, a.jobid, message, opentime, isCompleted, totalPrice

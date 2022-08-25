@@ -59,7 +59,6 @@ export default {
                 jobid: jobid,
                 password: password
             }).then((res) => {
-              console.log(res)
               localStorage.setItem("user",JSON.stringify(res.data))
               if (res.code=="200" && res.data.isManager === '管理员'){
                 this.$router.push({path:"/manage/home"})
@@ -67,7 +66,7 @@ export default {
               if (res.code=="200" && res.data.isManager === '普通用户'){
                 this.$router.push({path:"/doctor/doctorhome"})
               }
-              if (res.code!="200") {
+              if (res.code=="500") {
                 this.$message.error(res.msg)
               }
           }).catch((res)=>{

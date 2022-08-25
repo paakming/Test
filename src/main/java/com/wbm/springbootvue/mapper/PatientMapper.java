@@ -13,6 +13,8 @@ public interface PatientMapper {
 
     Patient selectByPrimaryKey(Integer pid);
 
+    Patient selectByPrimaryName(String pname);
+
     int updateByPrimaryKeySelective(Patient record);
 
     List<Patient> allPatient();

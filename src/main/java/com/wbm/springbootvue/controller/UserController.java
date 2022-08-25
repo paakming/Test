@@ -2,6 +2,8 @@ package com.wbm.springbootvue.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.wbm.springbootvue.common.Result;
+import com.wbm.springbootvue.common.ResultCode;
+import com.wbm.springbootvue.exception.ServiceException;
 import com.wbm.springbootvue.pojo.User;
 import com.wbm.springbootvue.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,6 @@ import java.util.List;
 
 
 @RestController
-@CrossOrigin
 @RequestMapping(value = "/user")
 public class UserController {
     @Autowired
@@ -23,20 +24,28 @@ public class UserController {
     }
     @PostMapping
     public Result add(@RequestBody User user){
-        int r = userService.addUser(user);
-        if (1==r){
-            return Result.success();
+        if (user.getJobid()==null || user.getPhone()==null ||user.getIsManager()==null){
+            throw new ServiceException(ResultCode.CODE_500,"必填项不能为空");
+        }else {
+            int r = userService.addUser(user);
+            if (1==r){
+                return Result.success();
+            }
         }
-        return Result.error("添加失败");
+        return Result.error();
     }
 
     @PutMapping
     public Result edit(@RequestBody User user){
-        int r = userService.updateUser(user);
-        if (r==1){
-            return Result.success();
+        if (user.getJobid().isEmpty() || user.getPhone().isEmpty() ||user.getIsManager().isEmpty()){
+            throw new ServiceException(ResultCode.CODE_500,"必填项不能为空");
+        }else {
+            int r = userService.updateUser(user);
+            if (r==1){
+                return Result.success();
+            }
         }
-        return Result.error("error");
+        return Result.error();
     }
     @DeleteMapping(value = "/{uid}")
     public Result delete(@PathVariable("uid")Integer uid){

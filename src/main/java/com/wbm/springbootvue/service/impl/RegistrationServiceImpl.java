@@ -45,4 +45,9 @@ public class RegistrationServiceImpl implements RegistrationService {
         PageInfo<Registration> prescriptionPageInfo =new PageInfo<>(list);
         return prescriptionPageInfo;
     }
+
+    @Override
+    public List<Registration> all() {
+        return registrationMapper.selectByjobid(null);
+    }
 }

@@ -24,7 +24,13 @@
     from patient
     where pid = #{pid,jdbcType=INTEGER}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <select id="selectByPrimaryName" resultType="com.wbm.springbootvue.pojo.Patient">
+      select
+      <include refid="Base_Column_List" />
+      from patient
+      where pname = #{pname}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     update patient set isDeleted="1"
     where pid = #{pid,jdbcType=INTEGER}
   </delete>

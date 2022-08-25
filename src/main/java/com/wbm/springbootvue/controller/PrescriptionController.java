@@ -10,24 +10,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin
 @RequestMapping(value = "/prescription")
 public class PrescriptionController {
     @Autowired
     PrescriptionService prescriptionService;
 
     @GetMapping
-    public Result doctorList(@RequestParam Integer pageNum, @RequestParam Integer pageSize){
+    public Result List(@RequestParam Integer pageNum, @RequestParam Integer pageSize){
         PageInfo<Prescription> PageInfo =  prescriptionService.allPrescription(pageNum,pageSize);
         return Result.success(PageInfo);
     }
-    @PostMapping
-    public Result add(@RequestBody Prescription prescription) {
-        int r = prescriptionService.insert(prescription);
+    @PostMapping(value = "/{cfid}")
+    public Result AList(@PathVariable Integer cfid){
+        List<Prescription> prescription = prescriptionService.selectByPrimaryKey(cfid);
+        return Result.success(prescription);
+    }
+    @PostMapping(value = "/{pname}/{name}/{message}/{drugname}/{usage}/{quantity}")
+    public Result add(@PathVariable(value = "pname")String pname,@PathVariable(value = "name")String name,
+                      @PathVariable("message")String message, @PathVariable(value = "drugname")String drugname,
+                      @PathVariable(value = "usage")String usage,@PathVariable(value = "quantity")String quantity) {
+        int r = prescriptionService.insert(pname, name, message, drugname, usage, quantity);
         if (1 == r) {
             return Result.success();
         }
-        return Result.error("添加失败");
+        return Result.error();
     }
     @PutMapping
     public Result edit(@RequestBody Prescription prescription){
@@ -35,7 +41,7 @@ public class PrescriptionController {
         if (r==1){
             return Result.success();
         }
-        return Result.error("error");
+        return Result.error();
     }
     @DeleteMapping(value = "/{cfid}")
     public Result delete(@PathVariable("cfid")Integer cfid){
@@ -51,7 +57,7 @@ public class PrescriptionController {
         if (r>0){
             return Result.success();
         }
-        return Result.error("删除失败");
+        return Result.error();
     }
     @PostMapping(value = "/{pid}/{jobid}/{message}/{drugname}/{usage}/{quantity}/{rid}")
     public Result newPrescription(@PathVariable(value = "pid")Integer pid,@PathVariable(value = "jobid")String jobid,
@@ -62,6 +68,6 @@ public class PrescriptionController {
         if (r>0){
             return Result.success(r);
         }
-        return Result.error("开具处方失败");
+        return Result.error();
     }
 }

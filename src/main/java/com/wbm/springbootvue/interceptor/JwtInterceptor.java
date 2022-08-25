@@ -1,9 +1,13 @@
 package com.wbm.springbootvue.interceptor;
 
+import cn.hutool.core.util.StrUtil;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.wbm.springbootvue.common.Result;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.wbm.springbootvue.common.ResultCode;
+import com.wbm.springbootvue.exception.ServiceException;
 import com.wbm.springbootvue.pojo.User;
 import com.wbm.springbootvue.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,21 +27,28 @@ public class JwtInterceptor implements HandlerInterceptor {
         if (!(handler instanceof HandlerMethod)){
             return true;
         }
-        if (token == null){
-            Result.error("no token");
-            return false;
+        if (StrUtil.isBlank(token)){
+            throw new ServiceException(ResultCode.CODE_401,"无token，请重新登录");
         }
         //get id
-        String uid = JWT.decode(token).getAudience().get(0);
+        String uid;
+        try {
+            uid = JWT.decode(token).getAudience().get(0);
+        }catch (JWTDecodeException e){
+            throw new ServiceException(ResultCode.CODE_401,"token验证失败,请重新登录");
+        }
         User user = userService.getById(Integer.parseInt(uid));
         //search user
         if (user == null){
-            Result.error("user isn't exist");
-            return false;
+            throw new ServiceException(ResultCode.CODE_401,"请重新登录");
         }
         // password
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(user.getPassword())).build();
-        jwtVerifier.verify(token);
+        try {
+            jwtVerifier.verify(token);
+        }catch (JWTVerificationException e){
+            throw new ServiceException(ResultCode.CODE_401,"token验证失败，请重新登录");
+        }
         return true;
     }
 }

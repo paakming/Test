@@ -6,12 +6,11 @@ import java.util.List;
 
 @Repository
 public interface DoctorMapper {
-    List<Doctor> allDoctor();
+    List<Doctor> allDoctor(String jobid);
     int deleteByPrimaryKey(String jobid);
     int insert(Doctor record);
-    int insertSelective(Doctor record);
     Doctor selectByPrimaryKey(String jobid);
+    Doctor selectByName(String name);
     int updateByPrimaryKeySelective(Doctor record);
-    int updateByPrimaryKey(Doctor record);
     int deleteByJobids(List<String> ids);
 }

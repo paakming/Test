@@ -1,15 +1,17 @@
 package com.wbm.springbootvue.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.wbm.springbootvue.common.ResultCode;
 import com.wbm.springbootvue.config.TokenUtils;
+import com.wbm.springbootvue.exception.ServiceException;
 import com.wbm.springbootvue.mapper.UserMapper;
 import com.wbm.springbootvue.pojo.User;
 import com.wbm.springbootvue.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Transactional
@@ -21,14 +23,23 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User logincheck(User user) {
-        user = userMapper.checkLogin(user);
-        String token = TokenUtils.genToken(user);
-        user.setToken(token);
-        return user;
+        try {
+            user = userMapper.checkLogin(user);
+        }catch (Exception e){
+            throw new ServiceException(ResultCode.CODE_401,"系统错误");
+        }
+        if (user !=null){
+            String token = TokenUtils.genToken(user);
+            user.setToken(token);
+            return user;
+        }else {
+            throw new ServiceException(ResultCode.CODE_500,"账号或密码错误");
+        }
     }
 
     @Override
     public Integer register(User user) {
+        user.setCreateTime(DateUtil.date(System.currentTimeMillis()));
         return userMapper.register(user);
     }
 
@@ -41,7 +52,13 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public List<User> list() {
+        return userMapper.All(null);
+    }
+
+    @Override
     public Integer addUser(User user) {
+        user.setCreateTime(DateUtil.date(System.currentTimeMillis()));
         user.setPassword("123456");
         return userMapper.addUser(user);
     }

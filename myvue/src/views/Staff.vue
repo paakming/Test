@@ -28,6 +28,8 @@
       </el-table-column>
       <el-table-column prop="phone" label="手机号" >
       </el-table-column>
+      <el-table-column prop="identityCard" label="身份证" >
+      </el-table-column>
       <el-table-column prop="position" label="职称" >
       </el-table-column>
       <el-table-column prop="department" label="部门" >
@@ -55,9 +57,9 @@
     <div>
       <!-- 编辑Form -->
       <el-dialog title="编辑" :visible.sync="dialogFormVisible" width="500px" :close-on-click-modal="false":before-close="cancel">
-        <el-form :model="form">
+        <el-form :model="form" :rules="rules" ref="form">
           <el-form-item label="职工号" :label-width="formLabelWidth">
-            <el-input v-model="form.jobid" autocomplete="off"></el-input>
+            <el-input v-model="form.jobid" :disabled="true" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="姓名" :label-width="formLabelWidth">
             <el-input v-model="form.name" autocomplete="off"></el-input>
@@ -79,6 +81,9 @@
           <el-form-item label="手机号" :label-width="formLabelWidth">
             <el-input v-model="form.phone" autocomplete="off"></el-input>
           </el-form-item>
+          <el-form-item label="身份证" :label-width="formLabelWidth">
+            <el-input v-model="form.identityCard" autocomplete="off"></el-input>
+          </el-form-item>
           <el-form-item label="职称" :label-width="formLabelWidth">
             <el-input v-model="form.position" autocomplete="off"></el-input>
           </el-form-item>
@@ -97,9 +102,6 @@
       <!-- 添加Form -->
       <el-dialog title="添加" :visible.sync="dialogFormVisibleAdd" width="500px"  :close-on-click-modal="false" :before-close="clearDialog">
         <el-form :model="formAdd" ref='formAdd'>
-          <el-form-item label="职工号" :label-width="formLabelWidth">
-            <el-input v-model="formAdd.jobid" autocomplete="off"></el-input>
-          </el-form-item>
           <el-form-item label="姓名" :label-width="formLabelWidth">
             <el-input v-model="formAdd.name" autocomplete="off"></el-input>
           </el-form-item>
@@ -114,6 +116,9 @@
           </el-form-item>
           <el-form-item label="手机号" :label-width="formLabelWidth">
             <el-input v-model="formAdd.phone" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="身份证" :label-width="formLabelWidth">
+            <el-input v-model="formAdd.identityCard" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="职称" :label-width="formLabelWidth">
             <el-input v-model="formAdd.position" autocomplete="off"></el-input>
@@ -148,7 +153,10 @@ export default {
       formAdd:{},
       formLabelWidth: '60px',
       multipleSelection: [],
-      searchjobid:''
+      searchjobid:'',
+      rules:{
+
+      }
     }
   },
   methods: {
@@ -158,7 +166,6 @@ export default {
           pageNum: this.pageNum,
           pageSize:this.pageSize
         }}).then((res)=>{
-        console.log(res)
         this.tableData = res.data.list
         this.total = res.data.total
         this.loading = false;
@@ -176,16 +183,13 @@ export default {
     //搜索
     search(){
       if (this.searchjobid !=''){
-        this.request.get("/doctor",{params:{
-            pageNum: this.pageNum,
-            pageSize:this.pageSize,
-            jobid:this.searchjobid
-          }}).then((res)=>{
-          this.tableData = res.list
-          this.total = res.total
+        let jobid = this.searchjobid
+        this.request.post("/doctor/"+jobid).then((res)=>{
+          this.tableData = res.data
+          this.total = 0
+          this.searchjobid = ''
           this.loading = false;
         })
-      }else{
       }
     },
     //删除
@@ -204,8 +208,8 @@ export default {
             this.load()
           }
         })
-      }).catch(()=>{
-
+      }).catch(err=>{
+        console.log(err)
       })
     },
     //批量删除
@@ -219,7 +223,6 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(()=>{
-        console.log(ids)
         this.request.post('/doctor/ids',ids).then((res)=>{
           if (res.code==='200'){
             this.$message({
@@ -236,10 +239,10 @@ export default {
     //添加
     insert(){
       this.dialogFormVisible = false
-      console.log(this.formAdd)
       let formData = this.formAdd
       if (formData !=null){
         this.request.post('/doctor',formData).then((res)=>{
+          console.log(res)
           if (res.code==='200'){
             this.$message({
               message:'添加成功',
@@ -247,13 +250,14 @@ export default {
             })
             this.load()
             this.clearDialog()
+          }else{
+            this.$message({
+              message:res.msg,
+              type:"error"
+            })
           }
         }).catch((res)=>{
           console.log(res)
-          this.$message({
-            message:'添加失败',
-            type:"error"
-          })
         })
       }
     },
@@ -269,6 +273,11 @@ export default {
           this.$message({
             message:'编辑成功',
             type:"success"
+          })
+        }else {
+          this.$message({
+            message:res.msg,
+            type:"error"
           })
         }
         this.load();

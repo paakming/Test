@@ -10,6 +10,7 @@ import VueRouter from "vue-router";
 import request from "@/utils/request";
 
 
+
 Vue.config.productionTip = false
 Vue.prototype.request=request
 

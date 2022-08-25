@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface DoctorService {
     PageInfo<Doctor> allDoctor(Integer pageNum, Integer pageSize);
+    List<Doctor> Doctor(String jobid);
     Integer addDoc(Doctor doctor);
     Integer updateDoc(Doctor doctor);
     Integer delDoc(String jobid);

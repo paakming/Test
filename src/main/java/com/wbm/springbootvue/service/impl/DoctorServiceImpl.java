@@ -2,6 +2,8 @@ package com.wbm.springbootvue.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.wbm.springbootvue.common.ResultCode;
+import com.wbm.springbootvue.exception.ServiceException;
 import com.wbm.springbootvue.mapper.DoctorMapper;
 import com.wbm.springbootvue.pojo.Doctor;
 import com.wbm.springbootvue.service.DoctorService;
@@ -18,15 +20,26 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public PageInfo<Doctor> allDoctor(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum,pageSize);
-        List<Doctor> list = doctorMapper.allDoctor();
+        List<Doctor> list = doctorMapper.allDoctor(null);
         PageInfo<Doctor> pageInfo =new PageInfo<>(list);
         return pageInfo;
     }
 
     @Override
+    public List<Doctor> Doctor(String jobid) {
+        return doctorMapper.allDoctor(jobid);
+    }
+
+    @Override
     public Integer addDoc(Doctor doctor) {
         doctor.setIsDeleted("0");
-        return doctorMapper.insert(doctor);
+        int r;
+        try {
+           r = doctorMapper.insert(doctor);
+        }catch (Exception e){
+            throw new ServiceException(ResultCode.CODE_500,"系统错误,添加医生信息失败");
+        }
+        return r;
     }
 
     @Override

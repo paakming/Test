@@ -3,6 +3,8 @@ package com.wbm.springbootvue.service;
 import com.github.pagehelper.PageInfo;
 import com.wbm.springbootvue.pojo.Registration;
 
+import java.util.List;
+
 public interface RegistrationService {
     int deleteByPrimaryKey(Short rid);
 
@@ -14,4 +16,5 @@ public interface RegistrationService {
 
     PageInfo<Registration> selectByjobid(String jobid,Integer pageNum, Integer pageSize);
 
+    List<Registration> all();
 }

@@ -13,6 +13,7 @@
         <result column="phone" property="phone" />
         <result column="email" property="email" />
         <result column="isManager" property="isManager" />
+        <result column="createTime" property="createTime" />
         <association property="doctor" javaType="com.wbm.springbootvue.pojo.Doctor">
             <id column="jobid" property="jobid"/>
             <result column="name" jdbcType="VARCHAR" property="name" />
@@ -29,7 +30,7 @@
     </select>
 
     <select id="All" resultType="com.wbm.springbootvue.pojo.User">
-        select uid,jobid,phone,email,isManager
+        select uid,jobid,phone,email,isManager,createTime
         from user
         where
         <if test="jobid!=null">
@@ -37,12 +38,12 @@
         </if> isDelete = "0"
     </select>
     <insert id="addUser" parameterType="com.wbm.springbootvue.pojo.User" >
-        insert into user (jobid,phone,password,email,isManager,isDelete)
-         values (#{jobid},#{phone},#{password},#{email},#{isManager},"0")
+        insert into user (jobid,phone,password,email,isManager,isDelete,createTime)
+         values (#{jobid},#{phone},#{password},#{email},#{isManager},"0",#{createTime})
     </insert>
     <insert id="register">
-        insert into user (phone,password,email,isManager,isDelete)
-        values (#{phone},#{password},#{email},"就诊人","0")
+        insert into user (phone,password,email,isManager,isDelete,createTime)
+        values (#{phone},#{password},#{email},"就诊人","0",#{createTime})
     </insert>
     <delete id="deleteUser" parameterType="integer">
         update user set isDelete = "1" where uid = #{uid}

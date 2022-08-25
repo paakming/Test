@@ -1,7 +1,7 @@
 <template>
   <el-main>
     <div style="padding: 10px 0">
-      <el-input v-model="searchjobid" suffix-icon="el-icon-search"  placeholder="输入职工号查询" style="width: 200px"></el-input>
+      <el-input v-model="searchId" suffix-icon="el-icon-search"  placeholder="输入处方编号查询" style="width: 200px"></el-input>
       <el-button type="primary" icon="el-icon-search" style="margin-left: 5px" @click="search">搜索</el-button>
       <el-button type="primary"  style="margin-left: 5px" @click="load">显示所有</el-button>
     </div>
@@ -50,50 +50,56 @@
     </div>
     <div>
       <!-- 编辑Form -->
-      <el-dialog title="编辑" :visible.sync="dialogFormVisible"  width="500px" :close-on-click-modal="false"  :before-close="cancel">
-        <el-form :model="form">
-          <el-form-item label="处方号" :label-width="formLabelWidth">
+      <el-dialog title="编辑" :visible.sync="dialogFormVisible" width="500px" :close-on-click-modal="false"  :before-close="cancel">
+        <el-form :model="form" :rules="rules" ref="form" >
+          <el-form-item label="处方号" :label-width="formLabelWidth" >
             <el-input v-model="form.cfid" :disabled="true" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="患者姓名" :label-width="formLabelWidth">
+          <el-form-item label="患者姓名" :label-width="formLabelWidth" prop="pname">
             <el-input v-model="form.patient.pname" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="主治医师" :label-width="formLabelWidth">
+          <el-form-item label="主治医师" :label-width="formLabelWidth" prop="name">
             <el-input v-model="form.doctor.name"  autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="诊疗信息" :label-width="formLabelWidth">
-            <el-input v-model="form.message" autocomplete="off"></el-input>
+          <el-form-item label="诊疗信息" :label-width="formLabelWidth" prop="message">
+            <el-input type="textarea" v-model="form.message" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="金额" :label-width="formLabelWidth">
+          <el-form-item label="金额" :label-width="formLabelWidth" >
             <el-input v-model="form.totalPrice" :disabled="true" autocomplete="off"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="cancel">取 消</el-button>
-          <el-button type="primary" @click="edit">确 定</el-button>
+          <el-button type="primary" @click="edit('form')">确 定</el-button>
         </div>
       </el-dialog>
     </div>
     <div>
       <!-- 添加Form -->
-      <el-dialog title="添加" :visible.sync="dialogFormVisibleAdd" width="500px"  :close-on-click-modal="false" :before-close="clearDialog">
-        <el-form :model="formAdd" ref='formAdd'>
-          <el-form-item label="处方号" :label-width="formLabelWidth">
-            <el-input v-model="formAdd.cfid"  autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="患者姓名" :label-width="formLabelWidth">
+      <el-dialog title="添加" :visible.sync="dialogFormVisibleAdd"   width="500px" :close-on-click-modal="false" :before-close="clearDialog">
+        <el-form :model="formAdd" ref='formAdd' :rules="rules" >
+          <el-form-item label="患者姓名" :label-width="formLabelWidth" prop="pname">
             <el-input v-model="formAdd.pname" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="主治医师" :label-width="formLabelWidth">
+          <el-form-item label="主治医师" :label-width="formLabelWidth" prop="name">
             <el-input v-model="formAdd.name"  autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="诊疗信息" :label-width="formLabelWidth">
-            <el-input v-model="formAdd.message" autocomplete="off"></el-input>
+          <el-form-item label="药品名" :label-width="formLabelWidth" prop="drugname">
+            <el-input v-model="formAdd.drugname" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="数量" :label-width="formLabelWidth" prop="quantity">
+            <el-input v-model="formAdd.quantity" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="用法" :label-width="formLabelWidth" prop="usage">
+            <el-input v-model="formAdd.usage" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="诊疗信息" :label-width="formLabelWidth" prop="message">
+            <el-input type="textarea" :rows="3" v-model="formAdd.message" autocomplete="off"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="clearDialog">取 消</el-button>
-          <el-button type="primary" @click="insert">确 定</el-button>
+          <el-button type="primary" @click="insert('formAdd')">确 定</el-button>
         </div>
       </el-dialog>
       <!-- Table -->
@@ -113,23 +119,23 @@
       </el-dialog>
       <!-- Table-Form -->
       <el-dialog title="修改" :visible.sync="dialogTableFormVisible" width="500px"  :close-on-click-modal="false" >
-        <el-form :model="detailForm" >
-          <el-form-item label="处方号" :label-width="formLabelWidth">
-            <el-input v-model="detailForm.cfid"  autocomplete="off"></el-input>
+        <el-form :model="detailForm" :rules="rules" ref="detailForm">
+          <el-form-item label="处方号" :label-width="formLabelWidth" >
+            <el-input v-model="detailForm.cfid" :disabled="true" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="药品名" :label-width="formLabelWidth">
+          <el-form-item label="药品名" :label-width="formLabelWidth" prop="drugname">
             <el-input v-model="detailForm.medicine.drugname" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="数量" :label-width="formLabelWidth">
+          <el-form-item label="数量" :label-width="formLabelWidth" prop="quantity">
             <el-input v-model="detailForm.quantity"  autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="用法" :label-width="formLabelWidth">
+          <el-form-item label="用法" :label-width="formLabelWidth" prop="usage">
             <el-input v-model="detailForm.usage" autocomplete="off"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="cancel">取 消</el-button>
-          <el-button type="primary" @click="updateDetail">确 定</el-button>
+          <el-button type="primary" @click="updateDetail('detailForm')">确 定</el-button>
         </div>
       </el-dialog>
 
@@ -141,7 +147,44 @@
 export default {
   name: "Prescription",
   data() {
+    var validatePname = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入患者姓名'));
+      }
+      callback()
+    };
+    var validateName = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入主治医师姓名'));
+      }
+      callback()
+    };
+    let validateDrugname = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入药品名'));
+      }
+      callback()
+    };
+    let validateQuality = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入数量'));
+      }
+      callback()
+    };
+    let validateUsage = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入用法'));
+      }
+      callback()
+    };
+    let validateMessage = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入诊疗信息'));
+      }
+      callback()
+    };
     return {
+      searchId:'',
       loading: true,
       tableData: [],
       pageNum:1,
@@ -154,9 +197,18 @@ export default {
       gridData:[],
       form: {
         doctor:'',
-        patient:''
+        patient:{
+        },
+        message:'',
       },
-      formAdd:{},
+      formAdd:{
+        pname: '',
+        name: '',
+        drugname:'',
+        quantity:'',
+        usage:'',
+        message:''
+      },
       detailForm:{
         medicine:''
       },
@@ -164,7 +216,26 @@ export default {
       patient:'',
       formLabelWidth: '70px',
       multipleSelection: [],
-      searchjobid:''
+      rules: {
+        pname: [
+          { validator: validatePname, trigger: 'blur' }
+        ],
+        name: [
+          {validator: validateName, trigger: 'blur'}
+        ],
+        drugname: [
+          {validator: validateDrugname, trigger: 'blur'}
+        ],
+        quantity: [
+          {validator: validateQuality, trigger: 'blur'}
+        ],
+        usage: [
+          {validator: validateUsage, trigger: 'blur'}
+        ],
+        message: [
+          {validator: validateMessage, trigger: 'blur'}
+        ],
+      }
     }
   },
   methods: {
@@ -177,7 +248,6 @@ export default {
         this.tableData = res.data.list
         this.total = res.data.total
         this.loading = false;
-        this.searchjobid = ''
       })
     },
     handleSizeChange(pageSize){
@@ -197,15 +267,13 @@ export default {
     },
     //搜索
     search(){
-      if (this.searchjobid !=''){
-        this.request.get("/prescription",{params:{
-            pageNum: this.pageNum,
-            pageSize:this.pageSize,
-            jobid:this.searchjobid
-          }}).then((res)=>{
-          this.tableData = res.list
-          this.total = res.total
+      if (this.searchId !=''){
+        let cfid = this.searchId
+        this.request.post("/prescription/"+cfid).then((res)=>{
+          this.tableData = res.data
           this.loading = false;
+          this.total = 0 ,
+          this.searchId = ''
         })
       }
     },
@@ -240,7 +308,6 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(()=>{
-        console.log(ids)
         this.request.post('/prescription/ids',ids).then((res)=>{
           if (res.code==='200'){
             this.$message({
@@ -255,44 +322,59 @@ export default {
       })
     },
     //添加
-    insert(){
+    insert(formName){
       this.dialogFormVisible = false
       let formData = this.formAdd
-      if (formData !=null){
-        console.log(formData)
-        this.request.post('/prescription',formData).then((res)=>{
-          if (res.code==='200'){
-            this.$message({
-              message:'添加成功',
-              type:"success"
+      let pname = this.formAdd.pname
+      let name = this.formAdd.name
+      let drugname = this.formAdd.drugname
+      let usage = this.formAdd.usage
+      let quantity = this.formAdd.quantity
+      let message = this.formAdd.message
+      this.$refs[formName].validate((valid) =>{
+        if (valid){
+          if (formData !=null){
+            this.request.post('/prescription/'+pname+'/'+name+'/'+message+'/'+drugname+'/'+usage+'/'+quantity).then((res)=>{
+              if (res.code==='200'){
+                this.$message({
+                  message:'添加成功',
+                  type:"success"
+                })
+                this.load()
+                this.clearDialog()
+              }else {
+                this.$message({
+                  message:res.msg,
+                  type:"error"
+                })
+              }
+            }).catch((res)=>{
+              console.log(res)
             })
-            this.load()
-            this.clearDialog()
           }
-        }).catch((res)=>{
-          console.log(res)
-          this.$message({
-            message:'添加失败',
-            type:"error"
-          })
-        })
-      }
+        }
+      })
+
     },
     //编辑
     handleEdit(index, row) {
       this.dialogFormVisible = true
       this.form = row
     },
-    edit(){
-      this.request.put('/prescription',this.form).then((res)=>{
-        this.dialogFormVisible = false
-        if (res.code==='200'){
-          this.$message({
-            message:'编辑成功',
-            type:"success"
+    edit(formName){
+      this.$refs[formName].validate((valid) =>{
+        if (valid){
+          this.request.put('/prescription',this.form).then((res)=>{
+            this.dialogFormVisible = false
+            if (res.code==='200'){
+              this.$message({
+                message:'编辑成功',
+                type:"success"
+              })
+            }
+            this.load();
           })
         }
-        this.load();
       })
     },
     //取消编辑时，重新加载数据
@@ -310,13 +392,19 @@ export default {
       this.dialogTableFormVisible = true
       this.detailForm = row
     },
-    updateDetail(){
-      this.request.put('/detail',this.detailForm).then((res)=>{
-        this.dialogTableFormVisible = false
-        if (res.code==='200'){
-          this.$message({
-            message:'编辑成功',
-            type:"success"
+    updateDetail(formName){
+      this.$refs[formName].validate(valid =>{
+        if (valid){
+          this.request.put('/detail',this.detailForm).then((res)=>{
+            this.dialogTableFormVisible = false
+            if (res.code==='200'){
+              this.$message({
+                message:'编辑成功',
+                type:"success"
+              })
+            }
+          }).catch(err => {
+            console.log(err)
           })
         }
       })

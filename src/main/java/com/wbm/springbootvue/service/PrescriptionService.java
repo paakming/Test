@@ -8,11 +8,13 @@ import java.util.List;
 public interface PrescriptionService {
     PageInfo<Prescription> allPrescription(Integer pageNum, Integer pageSize);
 
+    List<Prescription> allPrescription();
+
     Integer deleteByPrimaryKey(Integer cfid);
 
-    Integer insert(Prescription prescription);
+    Integer insert(String pname,String name, String message,String drugname,String usage,String quantity);
 
-    Prescription selectByPrimaryKey(Integer cfid);
+    List<Prescription> selectByPrimaryKey(Integer cfid);
 
     Integer updateByPrimaryKeySelective(Prescription prescription);
 

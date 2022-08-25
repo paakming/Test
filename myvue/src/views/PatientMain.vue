@@ -115,8 +115,8 @@
     </div>
     <div>
       <!-- 添加Form chufang-->
-      <el-dialog title="开具处方" :visible.sync="dialogFormVisibleAddP" width="500px"  :close-on-click-modal="false"  :before-close="clearDialog2">
-        <el-form :model="formAddP" ref='formAdd'>
+      <el-dialog title="开具处方" :visible.sync="dialogFormVisibleAddP" width="500px"    :before-close="clearDialog2">
+        <el-form :model="formAddP" >
           <el-form-item label="药品名" :label-width="formLabelWidth2">
             <el-input v-model="formAddP.drugname" autocomplete="off"></el-input>
           </el-form-item>
@@ -131,7 +131,7 @@
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="clearDialog">取 消</el-button>
+          <el-button @click="clearDialog2">取 消</el-button>
           <el-button type="primary" @click="addPrescription">确 定</el-button>
         </div>
       </el-dialog>
@@ -158,7 +158,9 @@ export default {
           drugname:''
         }
       },
-      formAddP: {},
+      formAddP: {
+
+      },
       formLabelWidth: '60px',
       formLabelWidth2: '80px',
       context: {
@@ -235,35 +237,47 @@ export default {
       let drugname = this.formAddP.drugname
       let usage = this.formAddP.usage
       let quantity = this.formAddP.quantity
-      this.request.post('/prescription/'+pid+'/'+jobid+'/'+message+'/'+drugname+'/'+usage+'/'+quantity+'/'+rid).then((res)=>{
-        console.log(res)
-        this.dialogFormVisibleAddP = false
-        let cfid = res.data
-        if (res.code==='200'){
+      if (typeof pid === 'undefined' ||typeof rid === 'undefined'||typeof jobid === 'undefined'||typeof message === 'undefined'||typeof drugname === 'undefined'
+            || typeof usage === 'undefined' ||typeof quantity === 'undefined'){
           this.$message({
-            message:'添加成功',
-            type:"success"
+            message:'请正确填写处方信息',
+            type:"error"
           })
-          this.request.get('/detail/'+cfid).then((res)=>{
-            this.tableData = res.data
-          })
-          this.appear = true
-        }
-      })
+
+      }else {
+        this.request.post('/prescription/'+pid+'/'+jobid+'/'+message+'/'+drugname+'/'+usage+'/'+quantity+'/'+rid).then((res)=>{
+          this.dialogFormVisibleAddP = false
+          let cfid = res.data
+          if (res.code==='200'){
+            this.$message({
+              message:'添加成功',
+              type:"success"
+            })
+            this.request.get('/detail/'+cfid).then((res)=>{
+              this.tableData = res.data
+            })
+            this.appear = true
+          }else {
+            this.$message({
+              message:res.msg,
+              type:"error"
+            })
+          }
+        })
+      }
+
     },
     getPrescription(){
       let cfid = this.context.cfid
       if (cfid != null){
         this.request.get('/detail/'+cfid).then((res)=>{
           this.tableData = res.data
-          console.log(this.tableData)
         })
         this.appear = true
       }
     },
     //删除
     handleDelete(index, row) {
-      console.log(row.did)
       this.$confirm('确认删除？',{
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -279,8 +293,8 @@ export default {
             this.getPrescription()
           }
         })
-      }).catch(()=>{
-
+      }).catch(err=>{
+          console.log(err)
       })
     },
     //编辑
@@ -289,13 +303,17 @@ export default {
       this.form = row
     },
     edit(){
-      console.log(this.form)
       this.request.put('/detail',this.form).then((res)=>{
         this.dialogFormVisible = false
         if (res.code==='200'){
           this.$message({
             message:'编辑成功',
             type:"success"
+          })
+        }else {
+          this.$message({
+            message:res.msg,
+            type:"error"
           })
         }
         this.getPrescription();
@@ -316,11 +334,11 @@ export default {
       }
     },
     clearDialog2(){
-      this.formAddP = ''
+      this.dialogFormVisibleAddP = false
+      this.formAddP = {}
     },
     add(){
       this.formAdd.cfid = this.tableData[0].cfid
-      console.log(this.formAdd)
       this.request.post('/detail',this.formAdd).then((res)=>{
         if (res.code==='200'){
           this.$message({
@@ -329,6 +347,11 @@ export default {
           })
           this.getPrescription()
           this.clearDialog()
+        }else {
+          this.$message({
+            message:res.msg,
+            type:"error"
+          })
         }
       })
     }
